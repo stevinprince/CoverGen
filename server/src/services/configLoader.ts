@@ -27,6 +27,7 @@ export interface Profile {
 
 export interface AppConfig {
   promptTemplate: string;
+  letterTemplate: string;
   referenceLetter: string;
   profile: Profile;
 }
@@ -78,11 +79,13 @@ export function formatProfile(profile: Profile): string {
 }
 
 export async function loadConfig(): Promise<AppConfig> {
-  const [promptTemplate, referenceLetter, profileRaw] = await Promise.all([
-    readText("prompt-template.md"),
-    readText("reference-letter.md"),
-    readText("profile.yaml"),
-  ]);
+  const [promptTemplate, letterTemplate, referenceLetter, profileRaw] =
+    await Promise.all([
+      readText("prompt-template.md"),
+      readText("letter-template.md"),
+      readText("reference-letter.md"),
+      readText("profile.yaml"),
+    ]);
 
   const profile = YAML.parse(profileRaw) as Profile;
   if (!profile?.full_name) {
@@ -93,13 +96,14 @@ export async function loadConfig(): Promise<AppConfig> {
     );
   }
 
-  return { promptTemplate, referenceLetter, profile };
+  return { promptTemplate, letterTemplate, referenceLetter, profile };
 }
 
 export async function getConfigSummary() {
   const config = await loadConfig();
   return {
     hasPromptTemplate: Boolean(config.promptTemplate),
+    hasLetterTemplate: Boolean(config.letterTemplate),
     hasReferenceLetter: Boolean(config.referenceLetter),
     hasProfile: Boolean(config.profile?.full_name),
     fullName: config.profile.full_name,

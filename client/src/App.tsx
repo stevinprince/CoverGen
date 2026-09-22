@@ -33,7 +33,7 @@ export default function App() {
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [tweaks, setTweaks] = useState("");
-  const [provider, setProvider] = useState<ProviderName>("openai");
+  const [provider, setProvider] = useState<ProviderName>("local");
 
   const [scraping, setScraping] = useState(false);
   const [scrapeError, setScrapeError] = useState<string | null>(null);
@@ -51,8 +51,12 @@ export default function App() {
     fetchConfig()
       .then((summary) => {
         setConfig(summary);
-        if (summary.defaultProvider === "anthropic") {
-          setProvider("anthropic");
+        if (
+          summary.defaultProvider === "anthropic" ||
+          summary.defaultProvider === "openai" ||
+          summary.defaultProvider === "local"
+        ) {
+          setProvider(summary.defaultProvider);
         }
       })
       .catch((err: Error) => {

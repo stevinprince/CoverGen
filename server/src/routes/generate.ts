@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { loadConfig } from "../services/configLoader.js";
 import { coverLetterToDocx } from "../services/docxExport.js";
-import { createLLMProvider } from "../services/llm/factory.js";
+import { assembleCoverLetter } from "../services/letterAssembler.js";
+import {
+  createLLMProvider,
+  getDefaultProviderName,
+} from "../services/llm/factory.js";
 import { assemblePrompt } from "../services/promptAssembler.js";
 import { isAppError } from "../utils/errors.js";
 
@@ -31,13 +35,29 @@ generateRouter.post("/", async (req, res) => {
     }
 
     const config = await loadConfig();
+    const providerName = (provider || getDefaultProviderName()).toLowerCase();
+
+    if (providerName === "local") {
+      const { coverLetter, jobTitle: resolvedTitle } = assembleCoverLetter(
+        config,
+        { jobTitle, jobDescription, tweaks },
+      );
+      res.json({
+        coverLetter,
+        jobTitle: resolvedTitle,
+        provider: "local",
+        wordCount: coverLetter.split(/\s+/).filter(Boolean).length,
+      });
+      return;
+    }
+
     const { prompt, jobTitle: resolvedTitle } = assemblePrompt(config, {
       jobTitle,
       jobDescription,
       tweaks,
     });
 
-    const llm = createLLMProvider(provider);
+    const llm = createLLMProvider(providerName);
     const coverLetter = await llm.generate({ prompt, model });
 
     res.json({

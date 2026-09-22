@@ -28,21 +28,29 @@ export function GeneratePanel({
       {error && <div className="banner error">{error}</div>}
 
       <div className="field">
-        <label htmlFor="provider">LLM provider</label>
+        <label htmlFor="provider">Provider</label>
         <select
           id="provider"
           value={provider}
           onChange={(e) => onProviderChange(e.target.value as ProviderName)}
         >
+          <option value="local">Local (no AI)</option>
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic Claude</option>
         </select>
+        {provider === "local" && (
+          <p className="hint">
+            Fills your letter template from the JD and profile — no API key required.
+          </p>
+        )}
       </div>
 
       <div className="field">
         <label htmlFor="tweaks">Tweak notes (optional)</label>
         <p className="hint">
-          Used on regenerate — e.g. “shorter bullets” or “emphasize React experience”.
+          {provider === "local"
+            ? "Appended as an editing note for local mode."
+            : "Used on regenerate — e.g. “shorter bullets” or “emphasize React experience”."}
         </p>
         <textarea
           id="tweaks"

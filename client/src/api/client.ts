@@ -1,7 +1,8 @@
-export type ProviderName = "openai" | "anthropic";
+export type ProviderName = "openai" | "anthropic" | "local";
 
 export interface ConfigSummary {
   hasPromptTemplate: boolean;
+  hasLetterTemplate: boolean;
   hasReferenceLetter: boolean;
   hasProfile: boolean;
   fullName: string;
@@ -14,7 +15,7 @@ export interface ConfigSummary {
 export interface GenerateResponse {
   coverLetter: string;
   jobTitle: string;
-  provider: ProviderName;
+  provider: ProviderName | string;
   wordCount: number;
 }
 
